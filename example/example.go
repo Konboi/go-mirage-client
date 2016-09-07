@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	mirage "../../go-mirage-client/"
+	"github.com/Konboi/go-mirage-client"
 )
 
 const (

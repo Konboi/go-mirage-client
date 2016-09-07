@@ -40,5 +40,4 @@ See `example/example.go`
 
 # TODO
 
-- Support custom parameter ref: [link](https://github.com/acidlemon/mirage#customization)
 - command line tools

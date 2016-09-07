@@ -22,7 +22,10 @@ func main() {
 
 	fmt.Println("container num is:", len(list.Result))
 
-	err = cli.Launch("subdomain", "image-name", "somebranch")
+	params := make(map[string]string)
+	params["branch"] = "somebranch"
+
+	err = cli.Launch("subdomain", "image-name", params)
 	if err != nil {
 		log.Println(err.Error())
 	}

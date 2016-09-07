@@ -1,7 +1,6 @@
 package mirage
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -21,12 +20,9 @@ func MockListHandler(w http.ResponseWriter, r *http.Request) {
 
 func MockLaunchHandler(w http.ResponseWriter, r *http.Request) {
 	jsonStr := `{"result": "ok"}`
+	r.ParseForm()
 
-	params := &RequestParam{}
-	json.NewDecoder(r.Body).Decode(params)
-	defer r.Body.Close()
-
-	if params.Subdomain == "" || params.Branch == "" || params.Image == "" {
+	if r.Form.Get("subdomain") == "" || r.Form.Get("image") == "" || r.Form.Get("branch") == "" {
 		jsonStr = `{"result": "false"}`
 	}
 
@@ -37,11 +33,9 @@ func MockLaunchHandler(w http.ResponseWriter, r *http.Request) {
 func MockTerminateHandler(w http.ResponseWriter, r *http.Request) {
 	jsonStr := `{"result": "ok"}`
 
-	params := &RequestParam{}
-	json.NewDecoder(r.Body).Decode(params)
-	defer r.Body.Close()
+	r.ParseForm()
 
-	if params.Subdomain == "" {
+	if r.Form.Get("subdomain") == "" {
 		jsonStr = `{"result": "false"}`
 	}
 
@@ -96,7 +90,9 @@ func TestLaunch(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	err = cli.Launch("dummy-sub", "dummy-image", "dummy-branch")
+	params := make(map[string]string)
+	params["branch"] = "dummy-branch"
+	err = cli.Launch("dummy-sub", "dummy-image", params)
 	if err != nil {
 		t.Fatalf("[error] Launch: %s", err.Error())
 	}

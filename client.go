@@ -1,10 +1,10 @@
 package mirage
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 type Client struct {
@@ -39,17 +39,16 @@ func (cli *Client) List() (list List, err error) {
 	return list, nil
 }
 
-func (cli *Client) Launch(subdomain string, image string, branch string) error {
-	rp := &RequestParam{
-		Subdomain: subdomain,
-		Image:     image,
-		Branch:    branch,
+func (cli *Client) Launch(subdomain string, image string, params map[string]string) error {
+	values := url.Values{}
+	values.Add("subdomain", subdomain)
+	values.Add("image", image)
+
+	for k, v := range params {
+		values.Add(k, v)
 	}
-	params, err := json.Marshal(rp)
-	if err != nil {
-		return err
-	}
-	res, err := http.Post(fmt.Sprintf("%s/api/launch", cli.Host), "application/json", bytes.NewBuffer(params))
+
+	res, err := http.PostForm(fmt.Sprintf("%s/api/launch", cli.Host), values)
 	if err != nil {
 		return err
 	}
@@ -66,15 +65,10 @@ func (cli *Client) Launch(subdomain string, image string, branch string) error {
 }
 
 func (cli *Client) Terminate(subdomain string) error {
-	rp := &RequestParam{
-		Subdomain: subdomain,
-	}
-	params, err := json.Marshal(rp)
-	if err != nil {
-		return err
-	}
+	values := url.Values{}
+	values.Add("subdomain", subdomain)
 
-	res, err := http.Post(fmt.Sprintf("%s/api/terminate", cli.Host), "application/json", bytes.NewBuffer(params))
+	res, err := http.PostForm(fmt.Sprintf("%s/api/terminate", cli.Host), values)
 	if err != nil {
 		return err
 	}

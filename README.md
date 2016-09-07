@@ -24,7 +24,10 @@ const (
 )
 
 func main() {
-	cli := mirage.NewClinet(MIRAGE_ENDPOINT)
+	cli, err := mirage.NewClient(MIRAGE_ENDPOINT)
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	list, err := cli.List()
 

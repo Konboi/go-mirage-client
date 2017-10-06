@@ -52,6 +52,10 @@ func TestNewClient(t *testing.T) {
 		t.Fatal("dummy is not working mirage")
 	}
 
+	if _, err := NewClient("http://example.mirage.fuga", NoInitPing()); err != nil {
+		t.Fatal("check is false")
+	}
+
 	_, err = NewClient(ts.URL)
 	if err != nil {
 		t.Fatal(err.Error())

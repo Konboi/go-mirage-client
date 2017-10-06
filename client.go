@@ -8,23 +8,41 @@ import (
 )
 
 type Client struct {
-	Host string
+	Host     string
+	initPing bool
 }
 
-func NewClient(host string) (cli *Client, err error) {
-	res, err := http.Get(host)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+type Option func(*Client)
 
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("please check mirage host. %s return %d", res.StatusCode)
+func NoInitPing() Option {
+	return func(c *Client) {
+		c.initPing = false
+	}
+}
+
+func NewClient(host string, options ...Option) (*Client, error) {
+	cli := &Client{
+		Host:     host,
+		initPing: true,
 	}
 
-	return &Client{
-		Host: host,
-	}, nil
+	for _, option := range options {
+		option(cli)
+	}
+
+	if cli.initPing {
+		res, err := http.Get(host)
+		if err != nil {
+			return nil, err
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("please check mirage host. %s return %d", res.StatusCode)
+		}
+	}
+
+	return cli, nil
 }
 
 func (cli *Client) List() (list List, err error) {
